@@ -235,9 +235,13 @@
     try {
       closeNotice();
       const notice=new Notification(isTest?'Eye Care Reminder — Background test':'Time for an eye break',{
-        body:message(), tag:'eye-care-reminder', silent:!settings.sound, requireInteraction:true
+        body:message(), tag:'eye-care-reminder', silent:!settings.sound, requireInteraction:false
       });
       nativeNotice=notice;
+      setTimeout(() => {
+        notice.close();
+        if (nativeNotice===notice) nativeNotice=undefined;
+      },1000);
       notificationError='';
       delivery('System notification requested at '+new Date().toLocaleTimeString()+'. If no banner appears, check Windows notification settings and Do not disturb.');
       notice.onshow=()=>delivery('Browser reported a system notification at '+new Date().toLocaleTimeString()+'. If no banner is visible, check your notification center and Do not disturb.');
@@ -258,8 +262,8 @@
       $('toast-title').textContent=isTest?'👀 Test eye-break reminder':'👀 Time for an eye break';
       $('toast-message').textContent=message(); $('toast').hidden=false;
       clearTimeout(toastTimer);
-      // Real reminders stay visible across navigation until dismissed or finished.
-      if (isTest) toastTimer=setTimeout(hidePopup,10000);
+      // Dismiss the in-page reminder after one second.
+      toastTimer=setTimeout(hidePopup,1000);
       showSystemNotice(isTest);
     }
     // Independent of system permission and popup delivery.
